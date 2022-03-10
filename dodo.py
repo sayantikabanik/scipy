@@ -20,12 +20,18 @@ Examples:
         $ doit bench --flag -s / doit bench -m -s
         $ doit bench --flag -t / doit bench -m -t
         $ doit release-authors -p 1.7.0 -c 1.8.0
+        $ doit release-notes -p 1.7.0 -c 1.8.0
 """
 DOIT_CONFIG = {'verbosity': 2}
+PARAMS_RELEASE = [{'name': 'start_revision',
+                   'short': 'p',
+                   'default': '',
+                   'type': str},
+                  {'name': 'end_revision',
+                   'short': 'c',
+                   'default': '',
+                   'type': str}]
 
-
-# def paver_write_release_task():
-# TODO: create a new script or add contents here
 
 def task_build():
     """
@@ -80,27 +86,21 @@ def task_doc_build():
             'basename': 'doc-build',
             'doc': 'Task Group: Initializing document build tasks',
             'task_dep': ['build']
-    }
+            }
 
 
 def gen_release_tasks():
     """
     Task generator for release tasks
     """
-    yield {'actions': ["python tools/authors.py v%(previous_revision)s..v%(current_revision)s"],
+    yield {'actions': ["python tools/authors.py v%(start_revision)s..v%(end_revision)s"],
            'basename': 'release-authors',
-           'params': [{'name': 'previous_revision',
-                       'short': 'p',
-                       'default': '',
-                       'type': str},
-                      {'name': 'current_revision',
-                       'short': 'c',
-                       'default': '',
-                       'type': str}],
+           'params': PARAMS_RELEASE,
            'doc': 'Task: Initializing create author list'}
-    # TODO: Needs fix
-    yield {'actions': ["paver write_release_and_log"],
+    # Note: Dependent on PR:15718
+    yield {'actions': ["python tools/write_release_and_log.py v%(start_revision)s v%(end_revision)s"],
            'basename': 'release-notes',
+           'params': PARAMS_RELEASE,
            'doc': 'Task: Initializing create release notes'}
 
 
