@@ -41,10 +41,12 @@ def release_cli():
     click.echo(f"Scipy release task successful")
 
 
+@click.argument("log_start", type=str, required=True)
+@click.argument("log_end", type=str, required=True)
 @release_cli.command(cls=RichCommand)
-def release_notes():
+def release_notes(log_start, log_end):
     """Initializing scipy log"""
-    click.echo(f"Scipy log generation successful")
+    click.echo(f"Scipy log generation for {log_start} to {log_end}")
 
 
 @release_cli.command(cls=RichCommand)
