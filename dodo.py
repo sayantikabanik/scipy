@@ -15,12 +15,12 @@ doit help <task-title>
 Targeted run for individual task-
 Examples:
         $ doit build
-        $ doit test -m <flag> -f <module name>
+        $ doit test -m <flag> -f <module_name>
         $ doit doc-build
         $ doit bench --flag -s / doit bench -m -s
         $ doit bench --flag -t / doit bench -m -t
-        $ doit release-authors -p 1.7.0 -c 1.8.0
-        $ doit release-notes -p 1.7.0 -c 1.8.0
+        $ doit release-authors -p <REVISION_01> -c <REVISION_02>
+        $ doit release-notes -p <LOG_START> -c <LOG_END>
 """
 DOIT_CONFIG = {'verbosity': 2}
 PARAMS_RELEASE = [{'name': 'start_revision',
