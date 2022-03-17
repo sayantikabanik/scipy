@@ -4,9 +4,11 @@ Info: Run tests, builds and other tasks using, typer and system package
     cmd options:
         $ python cli.py --help
         $ python cli.py bench <flag>
-        $ python cli.py test <flag> <module>
+        $ python cli.py test <flag> <module_name>
         $ python cli.py build
         $ python cli.py doc-build
+        $ python cli.py release-authors <REVISION_01> <REVISION_02>
+        $ python cli.py release-notes <LOG_START> <LOG_END>
 """
 
 from typing import Optional
