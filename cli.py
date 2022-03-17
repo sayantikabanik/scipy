@@ -8,7 +8,6 @@ Info: Run tests, builds and other tasks using, typer and system package
         $ python cli.py build
         $ python cli.py doc-build
 """
-# TODO: Add release tasks
 
 from typing import Optional
 import typer
@@ -39,10 +38,10 @@ def test(ctx: typer.Context):
     """
     Run test for a given module
     """
-    _arg = ""
+    _args = ""
     for extra_arg in ctx.args:
-        _arg += extra_arg + " "
-    os.system(f"python dev.py --no-build {_arg}")
+        _args += extra_arg + " "
+    os.system(f"python dev.py --no-build {_args}")
 
 
 @app.command()
@@ -52,6 +51,29 @@ def doc_build():
     """
     build()
     os.system("python dev.py --doc")
+
+
+@app.command(context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
+def release_notes(ctx: typer.Context):
+    """
+    Generating release notes
+    """
+    _args = ""
+    for extra_arg in ctx.args:
+        _args += "v" + extra_arg + " "
+    os.system(f"python tools/write_release_and_log.py {_args}")
+
+
+@app.command(context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
+def release_authors(ctx: typer.Context):
+    """
+    Generating contributor/author list
+    """
+    _args = ""
+    for extra_arg in ctx.args:
+        _args += "v" + extra_arg + ".."
+    revision = _args.rstrip("..")
+    os.system(f"python tools/authors.py {revision}")
 
 
 if __name__ == '__main__':
