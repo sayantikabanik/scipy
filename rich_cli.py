@@ -8,14 +8,13 @@ def cli():
     """
     Scipy tasks
     """
-    os.system("python dev.py --build-only")
-    click.echo(f"Scipy build completed")
+    click.echo(f"Initiating Scipy build")
 
 
 @cli.command(cls=RichCommand)
 def doc_build():
     """Initializing document build"""
-    os.system("python dev.py --doc")
+    click.echo(f"Initiating Scipy doc build")
 
 
 if __name__ == "__main__":
