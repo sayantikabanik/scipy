@@ -97,7 +97,6 @@ def gen_release_tasks():
            'basename': 'release-authors',
            'params': PARAMS_RELEASE,
            'doc': 'Task: Initializing create author list'}
-    # Note: Dependent on PR:15718
     yield {'actions': ["python tools/write_release_and_log.py v%(start_revision)s v%(end_revision)s"],
            'basename': 'release-notes',
            'params': PARAMS_RELEASE,
