@@ -1,6 +1,11 @@
 from doit import task_params
 import click
 import inspect
+import sys
+from doit.cmd_base import ModuleTaskLoader, get_loader
+from doit.doit_cmd import DoitMain
+from doit.cmdparse import DefaultUpdate, CmdParse, CmdParseError
+from doit.exceptions import InvalidDodoFile, InvalidCommand, InvalidTask
 
 from rich_click import RichCommand, RichGroup
 from rich.console import Console
@@ -21,6 +26,39 @@ opt_install_prefix = {
     'help': "Relative path to the install directory. Default is <build-dir>-install.",
 }
 
+class DoitMainAPI(DoitMain):
+    """add new method to run tasks with parsed command line"""
+
+    def run_tasks(self, task):
+        """
+        :params task: str - task name
+        """
+
+        # get list of available commands
+        sub_cmds = self.get_cmds()
+        task_loader = get_loader(self.config, self.task_loader, sub_cmds)
+
+        # execute command
+        cmd_name = 'run'
+        command = sub_cmds.get_plugin(cmd_name)(
+            task_loader=task_loader,
+            config=self.config,
+            bin_name=self.BIN_NAME,
+            cmds=sub_cmds,
+            opt_vals={},
+            )
+
+        try:
+            cmd_opt = CmdParse(command.get_options())
+            params, _ = cmd_opt.parse([])
+            args = [task]
+            command.execute(params, args)
+        except (CmdParseError, InvalidDodoFile,
+                InvalidCommand, InvalidTask) as err:
+            if isinstance(err, InvalidCommand):
+                err.cmd_used = cmd_name
+                err.bin_name = self.BIN_NAME
+            raise err
 
 def param_doit2click(task_param: dict):
     """converts a doit TaskParam to Click.Parameter"""
@@ -30,6 +68,15 @@ def param_doit2click(task_param: dict):
     if 'short' in task_param:
         param_decls.append(f"-{task_param['short']}")
     return click.Option(param_decls, default=task_param['default'], help=task_param.get('help'))
+
+
+def run_doit_task(task_name, **kwargs):
+    """:param kwargs: contain task_opts"""
+    loader = ModuleTaskLoader(globals())
+    loader.task_opts = {task_name: kwargs}
+    doit_main = DoitMainAPI(loader, extra_config={'GLOBAL': {'verbosity': 2}})
+    return doit_main.run_tasks(task_name)
+
 
 def doit_task_callback(task_name):
     def callback(**kwargs):
@@ -89,6 +136,21 @@ def task_flake(output_file):
         opts += f'--output-file={output_file}'
     return {
         'actions': [f"flake8 {opts} scipy benchmarks/benchmarks"],
+    }
+
+@cli.task_as_cmd()
+@task_params([{'name': 'log_start', 'long': 'log-start', 'default': None,
+               'help': 'Enter log start version'},
+              {'name': 'log_end', 'long': 'log-end', 'default': None,
+               'help': 'Enter log end version'}])
+def task_notes(log_start, log_end):
+    """Release notes."""
+    opts = ''
+    opts += f'--log-start={log_start} --log-end={log_end}'
+    cmd = f"python tools/write_release_and_log.py {opts}"
+    print(cmd)
+    return {
+        'actions': [f"python tools/write_release_and_log.py {opts}"],
     }
 
 
