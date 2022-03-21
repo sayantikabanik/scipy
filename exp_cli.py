@@ -14,7 +14,6 @@ from rich_click import RichCommand, RichGroup
 from rich.console import Console
 from rich.syntax import Syntax
 
-
 opt_build_dir = {
     'name': 'build_dir',
     'long': 'build-dir',
@@ -28,6 +27,7 @@ opt_install_prefix = {
     'default': None,
     'help': "Relative path to the install directory. Default is <build-dir>-install.",
 }
+
 
 class DoitMainAPI(DoitMain):
     """add new method to run tasks with parsed command line"""
@@ -49,7 +49,7 @@ class DoitMainAPI(DoitMain):
             bin_name=self.BIN_NAME,
             cmds=sub_cmds,
             opt_vals={},
-            )
+        )
 
         try:
             cmd_opt = CmdParse(command.get_options())
@@ -62,6 +62,7 @@ class DoitMainAPI(DoitMain):
                 err.cmd_used = cmd_name
                 err.bin_name = self.BIN_NAME
             raise err
+
 
 def param_doit2click(task_param: dict):
     """converts a doit TaskParam to Click.Parameter"""
@@ -84,6 +85,7 @@ def run_doit_task(task_name, **kwargs):
 def doit_task_callback(task_name):
     def callback(**kwargs):
         sys.exit(run_doit_task(task_name, **kwargs))
+
     return callback
 
 
@@ -95,7 +97,7 @@ class ClickDoit(RichGroup):
 
     def task_as_cmd(self, name=None, **attrs):
         def decorator(creator):
-            task_name = creator.__name__[5:] # 5 is len('task_')
+            task_name = creator.__name__[5:]  # 5 is len('task_')
             cmd_name = name if name else task_name
             cmd_help = inspect.getdoc(creator)
             task_params = getattr(creator, '_task_creator_params', None)
@@ -116,7 +118,8 @@ class ClickDoit(RichGroup):
                 params=params,
             )
             self.add_command(cmd)
-            return creator # return original task_creator to be used by doit itself
+            return creator  # return original task_creator to be used by doit itself
+
         return decorator
 
 
@@ -131,27 +134,19 @@ def cli(ctx, build_dir, install_prefix):
 
 
 @cli.task_as_cmd()
-@task_params([{'name': 'output_file', 'long': 'output-file', 'default': None,
-               'help': 'Redirect report to a file'}])
-def task_flake(output_file):
-    """Perform pep8 check with flake8."""
-    opts = ''
-    if output_file:
-        opts += f'--output-file={output_file}'
-    return {
-        'actions': [f"flake8 {opts} scipy benchmarks/benchmarks"],
-    }
-
-
-@cli.command(context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
-@click.pass_context
-def notes(ctx):
+@task_params([{'name': 'start', 'long': 'log-start', 'default': None,
+               'help': 'log start version'},
+              {'name': 'end', 'long': 'log-end', 'default': None,
+               'help': 'log end version'}
+              ])
+def task_notes(start, end):
     """Release notes."""
-    _args = ""
-    for extra_arg in ctx.args:
-        _args += "v" + extra_arg + " "
-    print(_args)
-    os.system(f"python tools/write_release_and_log.py {_args}")
+    cmd = f'python tools/write_release_and_log.py v{start} v{end}'
+    click.echo(cmd)
+    return {
+        'actions': [cmd],
+        'verbosity': 2
+    }
 
 
 if __name__ == '__main__':
