@@ -1,7 +1,10 @@
 from doit import task_params
 import click
+from click.globals import push_context
+
 import inspect
 import sys
+import os
 from doit.cmd_base import ModuleTaskLoader, get_loader
 from doit.doit_cmd import DoitMain
 from doit.cmdparse import DefaultUpdate, CmdParse, CmdParseError
@@ -116,6 +119,7 @@ class ClickDoit(RichGroup):
             return creator # return original task_creator to be used by doit itself
         return decorator
 
+
 @click.group(cls=ClickDoit)
 @click.option('--build-dir', default='build', help=opt_build_dir['help'])
 @click.option('--install-prefix', default=None, help=opt_install_prefix['help'])
@@ -138,20 +142,16 @@ def task_flake(output_file):
         'actions': [f"flake8 {opts} scipy benchmarks/benchmarks"],
     }
 
-@cli.task_as_cmd()
-@task_params([{'name': 'log_start', 'long': 'log-start', 'default': None,
-               'help': 'Enter log start version'},
-              {'name': 'log_end', 'long': 'log-end', 'default': None,
-               'help': 'Enter log end version'}])
-def task_notes(log_start, log_end):
+
+@cli.command(context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
+@click.pass_context
+def notes(ctx):
     """Release notes."""
-    opts = ''
-    opts += f'--log-start={log_start} --log-end={log_end}'
-    cmd = f"python tools/write_release_and_log.py {opts}"
-    print(cmd)
-    return {
-        'actions': [f"python tools/write_release_and_log.py {opts}"],
-    }
+    _args = ""
+    for extra_arg in ctx.args:
+        _args += "v" + extra_arg + " "
+    print(_args)
+    os.system(f"python tools/write_release_and_log.py {_args}")
 
 
 if __name__ == '__main__':
