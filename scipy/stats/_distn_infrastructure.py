@@ -1390,7 +1390,7 @@ class rv_generic:
         mu, mu2, g1, g2 = None, None, None, None
         if (n > 0) and (n < 5):
             if self._stats_has_moments:
-                mdict = {'moments': {1: 'm', 2: 'v', 3: 'vs', 4: 'vk'}[n]}
+                mdict = {'moments': {1: 'm', 2: 'v', 3: 'vs', 4: 'mvsk'}[n]}
             else:
                 mdict = {}
             mu, mu2, g1, g2 = self._stats(*shapes, **mdict)
@@ -1920,6 +1920,10 @@ class rv_continuous(rv_generic):
                  shapes=None, extradoc=None, seed=None):
 
         super().__init__(seed)
+
+        if extradoc is not None:
+            warnings.warn("extradoc is deprecated and will be removed in "
+                          "SciPy 1.11.0", DeprecationWarning)
 
         # save the ctor parameters, cf generic freeze
         self._ctor_param = dict(
@@ -3048,7 +3052,7 @@ class rv_discrete(rv_generic):
         If not provided, shape parameters will be inferred from
         the signatures of the private methods, ``_pmf`` and ``_cdf`` of
         the instance.
-    extradoc :  str, optional
+    extradoc :  str, optional, deprecated
         This string is used as the last part of the docstring returned when a
         subclass has no docstring of its own. Note: `extradoc` exists for
         backwards compatibility, do not use for new subclasses.
@@ -3158,6 +3162,10 @@ class rv_discrete(rv_generic):
                  shapes=None, extradoc=None, seed=None):
 
         super().__init__(seed)
+
+        if extradoc is not None:
+            warnings.warn("extradoc is deprecated and will be removed in "
+                          "SciPy 1.11.0", DeprecationWarning)
 
         # cf generic freeze
         self._ctor_param = dict(
@@ -3838,6 +3846,10 @@ class rv_sample(rv_discrete):
                  shapes=None, extradoc=None, seed=None):
 
         super(rv_discrete, self).__init__(seed)
+
+        if extradoc is not None:
+            warnings.warn("extradoc is deprecated and will be removed in "
+                          "SciPy 1.11.0", DeprecationWarning)
 
         if values is None:
             raise ValueError("rv_sample.__init__(..., values=None,...)")
