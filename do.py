@@ -47,12 +47,11 @@ from doit.doit_cmd import DoitMain
 from doit.cmdparse import DefaultUpdate, CmdParse, CmdParseError
 from doit.exceptions import InvalidDodoFile, InvalidCommand, InvalidTask
 
-from rich_click import RichCommand, RichGroup
-from rich.console import Console
-from rich.syntax import Syntax
-
 # keep compatibility and re-use dev.py code
 import dev as dev_module
+
+#rich-click
+from rich_click import RichCommand, RichGroup
 
 
 DOIT_CONFIG = {
@@ -234,12 +233,6 @@ CONTEXT = Context({
         help="Relative path to the install directory. Default is <build-dir>-install."),
 })
 
-RELEASE_CONTEXT = Context({
-    'log_start': Option(
-    ['--log-start'], default=None, help='Log start version'),
-'log_end': Option(
-    ['--log-end'], default=None, help='Log end version'),
-})
 
 
 @click.group(cls=CliGroup)
@@ -564,38 +557,74 @@ def shell(ctx_obj, extra_argv):
     os.execv(shell, [shell] + extra_argv)
     sys.exit(1)
 
+"""
+New additons + rich 
+"""
+import rich_click as click
+click.rich_click.STYLE_ERRORS_SUGGESTION = "yellow italic"
+click.rich_click.SHOW_ARGUMENTS = True
+click.rich_click.SHOW_METAVARS_COLUMN = True
+
+click.rich_click.COMMAND_GROUPS = {
+    "do.py": [
+        {
+            "name": "Manual Commands: Non Doit",
+            "commands": ["notes", "ipython", "shell", "python"],
+        },
+        {
+            "name": "Commands: Doit",
+            "commands": ["build", "pep8", "mypy", "rnotes", "test"],
+        }
+    ]
+}
+
 
 #not a doit task
+# python do.py notes 1.7.0 1.8.0
 @cli.command(cls=RichCommand)
 @click.argument('version_args', nargs=-1)
 @click.pass_obj
 def notes(ctx_obj, version_args):
-    """Release notes."""
-    # python do.py notes 1.7.0 1.8.0
+    """Release notes generation (Not a Doit task)"""
     if version_args:
         sys.argv = version_args
         log_start = sys.argv[0]
         log_end = sys.argv[1]
     cmd = f"python tools/write_release_and_log.py v{log_start} v{log_end}"
     click.echo(cmd)
-    os.system(cmd)
+    try:
+        os.system(cmd)
+    except Exception as error:
+        print('Error caught: ' + repr(error))
+
 
 #doit task
+#doit notes --log-start=1.7.0 --log-end=1.8.0
+RELEASE_CONTEXT = Context({
+    'log_start': Option(
+    ['--log-start'], default=None, help='Log start version'),
+'log_end': Option(
+    ['--log-end'], default=None, help='Log end version'),
+})
 
 
-@cli.cmd('notes')
-class Notes(Task):
+@cli.cmd('rnotes')
+class Rnotes(Task):
+    """Release notes generation (Doit task)"""
     ctx = RELEASE_CONTEXT
 
     @classmethod
+    def rnotes(cls, args):
+        cmd = f"python tools/write_release_and_log.py v{args[0]} v{args[1]}"
+        click.echo(cmd)
+        os.system(cmd)
+
+    @classmethod
     def run(cls, **kwargs):
-        """run release notes"""
         kwargs.update(cls.ctx.get())
         Args = namedtuple('Args', [k for k in kwargs.keys()])
         args = Args(**kwargs)
-        return {
-            'actions': [f"python tools/write_release_and_log.py v{args[0]} v{args[1]}"]
-        }
+        cls.rnotes(args)
 
 
 if __name__ == '__main__':
