@@ -1158,12 +1158,8 @@ def authors(ctx_obj, revision_args):
 act integration
 http://scipy.github.io/devdocs/dev/contributor/using_act.html?highlight=act 
 TODO:
-- get feedback
-- convert into individual options (based on feedback)
-
-(should the paths be auto detected or manually added by the user for below additions?)
-- add act secrets
-- add act env
+- Improve on the helper text, add docker instructions 
+- add specific example commands
 """
 @cli.cls_cmd('act')
 class Act(Task):
