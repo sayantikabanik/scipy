@@ -1196,11 +1196,13 @@ class Act(Task):
                 cmd += ['-v']
             if args[0] == 'dry-run':
                 cmd += ['-n']
-        elif len(args)>1:
+        elif len(args)==2:
             if args[0] == 'run-job':
                 cmd += ['-j', args[1]]
             if args[0] == 'reuse':
                 cmd += ['-j', args[1], '--bind', '--reuse']
+        else:
+            click.echo("Too many positional arguments detected, kindly use to --help option to know more")
 
         cmd_str = ' '.join(cmd)
         click.echo(cmd_str)
