@@ -1160,7 +1160,8 @@ http://scipy.github.io/devdocs/dev/contributor/using_act.html?highlight=act
 TODO:
 - get feedback
 - convert into individual options (based on feedback)
-- improve docstrings
+
+(should the paths be auto detected or manually added by the user for below additions?)
 - add act secrets
 - add act env
 """
