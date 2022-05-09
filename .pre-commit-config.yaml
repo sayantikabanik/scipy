@@ -4,7 +4,7 @@ repos:
     hooks:
     # checks yaml files for parseable syntax
     -   id: check-yaml
-    # checks toml files for parseable syntax.
+    # checks toml files for parseable syntax
     -   id: check-toml
     # ensures that a file is either empty, or ends with one newline
     -   id: end-of-file-fixer
