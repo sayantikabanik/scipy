@@ -2,16 +2,11 @@ repos:
   - repo: 'https://github.com/pre-commit/pre-commit-hooks'
     rev: v4.2.0
     hooks:
-    # checks yaml files for parseable syntax
-    -   id: check-yaml
-    # checks toml files for parseable syntax
-    -   id: check-toml
-    # ensures that a file is either empty, or ends with one newline
-    -   id: end-of-file-fixer
-    # trims trailing whitespace
-    -   id: trailing-whitespace
-    # detects the presence of private keys
-    -   id: detect-private-key
+    -   id: check-yaml # checks yaml files for parseable syntax
+    -   id: check-toml # checks toml files for parseable syntax
+    -   id: end-of-file-fixer # ensures that a file is either empty, or ends with one newline
+    -   id: trailing-whitespace # trims trailing whitespace
+    -   id: detect-private-key # detects the presence of private keys
   - repo: 'https://github.com/psf/black'
     rev: 22.3.0
     hooks:
@@ -22,5 +17,5 @@ repos:
       - id: darker
         args: [--isort, flake8]
         additional_dependencies:
-          - isort~=5.9
+          - isort
           - flake8
