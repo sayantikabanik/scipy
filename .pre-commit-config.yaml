@@ -1,4 +1,4 @@
-#Alternatively *manual* stage setting for black, flake8 and other hooks could be added
+# Alternatively *manual* stage setting for black, flake8 and other hooks could be added
 # Command to trigger manual action: pre-commit run --hook-stage manual <hook_id>
 repos:
   - repo: 'https://github.com/pre-commit/pre-commit-hooks'
